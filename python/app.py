@@ -1,7 +1,7 @@
 from flask import Flask,request
 from flask_cors import CORS
-from .common import send_settlement_to_agency
-from .aarambh_integration import create_settlement,update_settlement
+from common import send_settlement_to_agency
+from aarambh_integration import create_settlement,update_settlement
 app = Flask(__name__)
 CORS(app)
 @app.route('/v1/settle',methods=['POST'])
