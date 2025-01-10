@@ -1,4 +1,4 @@
-from flask import request,Flask
+from flask import Flask,request
 from flask_cors import CORS
 from .common import send_settlement_to_agency
 from .aarambh_integration import create_settlement,update_settlement
