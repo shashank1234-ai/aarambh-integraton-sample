@@ -26,6 +26,13 @@ def post_on_bg_or_bap(url, payload, headers={}):
     response = requests.post(url, data=raw_data, headers=headers)
     return response.text, response.status_code
 
+def post_on_bap_bpp(request_payload):
+    auth_header = create_authorisation_header(request_payload)
+    request_uri = '' #extract request uri based on type of NP example if BAP extract BPP url appended with action
+    headers= {'Authorization':auth_header}
+    response, status_code = post_on_bg_or_bap(request_uri, request_payload, headers={headers})
+    return response, status_code
+
 def create_signing_string(digest_base64, created=None, expires=None):
     if created is None:
         created = int(datetime.datetime.now().timestamp())
