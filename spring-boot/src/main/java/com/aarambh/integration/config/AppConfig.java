@@ -15,8 +15,7 @@ public class AppConfig {
     private String privateKey;
 
     @Value("${aarambh.aarambh-pk}")
-    // @Value("${aarambh.access-key:}")
-    // private String accessKey;
+    private String aarambhPrivateKey;
 
     // @Value("${aarambh.secret-key:}")
     // private String secretKey;
