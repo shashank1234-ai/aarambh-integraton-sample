@@ -39,7 +39,7 @@ public class CommonService {
         return postOnBgOrBap(endPoint, payload, headers);
     }
 
-    public ResponseEntity<String> postOnBgOrBap(String url, Map<String, Object> payload, HttpHeaders headers) {
+    public ResponseEntity<String> requestPost(String url, Map<String, Object> payload, HttpHeaders headers) {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
         return restTemplate.exchange(url, HttpMethod.POST, request, String.class);
@@ -50,23 +50,16 @@ public class CommonService {
         String requestUri = extractRequestUri(requestPayload);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authHeader);
-        return postOnBgOrBap(requestUri, requestPayload, headers);
+        return requestPost(requestUri, requestPayload, headers);
     }
 
     private String extractRequestUri(Map<String, Object> payload) {
         Map<String, Object> context = (Map<String, Object>) payload.get("context");
         String action = (String) context.get("action");
-        String bppUri = (String) context.get("bpp_uri");
+
+        String requestUri = (String) context.get("bpp_uri");  // if NP is BAP 
+        return requestUri + "/" + action;
         
-        // Extract the appropriate URI based on the action
-        switch (action) {
-            case "recon":
-                return bppUri + "/on_recon";
-            case "on_recon":
-                return bppUri + "/recon";
-            default:
-                return bppUri + "/" + action;
-        }
     }
 
     private String createSigningString(String digestBase64, Long created, Long expires) {
