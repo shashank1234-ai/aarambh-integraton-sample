@@ -37,7 +37,8 @@ public class CommonService {
         HttpHeaders headers = new HttpHeaders();
         
         headers.set("Authorization", authHeader);
-        return postOnBgOrBap(endPoint, payload, headers);
+        
+        return requestPost(endPoint, payload, headers);
     }
 
     public ResponseEntity<String> requestPost(String url, Object payload, HttpHeaders headers) {
