@@ -26,26 +26,27 @@ public class CommonService {
         this.objectMapper = new ObjectMapper();
     }
 
-    public ResponseEntity<String> sendSettlementToAgency(Map<String, Object> payload, String requestType) {
-        String bppUri = (String) ((Map<String, Object>) payload.get("context")).get("bpp_uri");
+    public ResponseEntity<String> sendSettlementToAgency(Object payload, String requestType) {
+        String bppUri = (String) payload.get("context")).get("bpp_uri");
         String saEndPoint = bppUri + "/" + requestType;
         return makeRequestOverSa(payload, saEndPoint);
     }
 
-    public ResponseEntity<String> makeRequestOverSa(Map<String, Object> payload, String endPoint) {
+    public ResponseEntity<String> makeRequestOverSa(Object payload, String endPoint) {
         String authHeader = createAuthorizationHeader(payload);
         HttpHeaders headers = new HttpHeaders();
+        
         headers.set("Authorization", authHeader);
         return postOnBgOrBap(endPoint, payload, headers);
     }
 
-    public ResponseEntity<String> requestPost(String url, Map<String, Object> payload, HttpHeaders headers) {
+    public ResponseEntity<String> requestPost(String url, Object payload, HttpHeaders headers) {
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+        HttpEntity<Object> request   = new HttpEntity<>(payload, headers);
         return restTemplate.exchange(url, HttpMethod.POST, request, String.class);
     }
 
-    public ResponseEntity<String> postOnBapBpp(Map<String, Object> requestPayload) {
+    public ResponseEntity<String> postOnBapBpp(Object requestPayload) {
         String authHeader = createAuthorizationHeader(requestPayload);
         String requestUri = extractRequestUri(requestPayload);
         HttpHeaders headers = new HttpHeaders();
@@ -54,7 +55,7 @@ public class CommonService {
     }
 
     private String extractRequestUri(Map<String, Object> payload) {
-        Map<String, Object> context = (Map<String, Object>) payload.get("context");
+        Object context = payload.get("context");
         String action = (String) context.get("action");
 
         String requestUri = (String) context.get("bpp_uri");  // if NP is BAP 
@@ -83,7 +84,7 @@ public class CommonService {
         }
     }
 
-    private String createAuthorizationHeader(Map<String, Object> requestBody) {
+    private String createAuthorizationHeader(Object requestBody) {
         long created = Instant.now().getEpochSecond();
         long expires = Instant.now().plusSeconds(3600).getEpochSecond();
         
@@ -109,7 +110,7 @@ public class CommonService {
         }
     }
 
-    public String createAuthorizationHeaderAarambh(Map<String, Object> requestBody) {
+    public String createAuthorizationHeaderAarambh(Object requestBody) {
         long created = Instant.now().getEpochSecond();
         long expires = Instant.now().plusSeconds(3600).getEpochSecond();
         
@@ -120,7 +121,15 @@ public class CommonService {
             );
             
             String signingKey = createSigningString(digestBase64, created, expires);
-            return signResponse(signingKey, appConfig.getPrivateKey());
+            const signature = signResponse(signingKey, appConfig.getPrivateKey());
+            return String.format(
+                "Signature keyId=\"%s|%s|ed25519\",algorithm=\"ed25519\",created=\"%d\",expires=\"%d\",headers=\"(created) (expires) digest\",signature=\"%s\"",
+                appConfig.getSubscriberId(),
+                appConfig.getUniqueKey(),
+                created,
+                expires,
+                signature
+            );
         } catch (Exception e) {
             throw new RuntimeException("Error creating Aarambh authorization header", e);
         }
