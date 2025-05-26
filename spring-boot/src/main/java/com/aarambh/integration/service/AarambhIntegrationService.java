@@ -26,7 +26,7 @@ public class AarambhIntegrationService {
         this.commonService = commonService;
     }
 
-    public ResponseEntity<String> createRecord(Map<String, Object> payload) {
+    public ResponseEntity<String> createRecord(Object payload) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("subscriberid", appConfig.getSubscriberId());
