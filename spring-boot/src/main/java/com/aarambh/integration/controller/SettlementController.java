@@ -26,74 +26,76 @@ public class SettlementController {
     }
 
     @PostMapping("/settle")
-    public ResponseEntity<String> settleTransaction(@Valid @RequestBody Map<String, Object> requestPayload) {
-        validateContext(requestPayload);
+    public ResponseEntity<String> settleTransaction(@Valid @RequestBody Object requestPayload) {
         return commonService.sendSettlementToAgency(requestPayload, "settle");
     }
 
     @PostMapping("/report")
-    public ResponseEntity<String> settlementReport(@Valid @RequestBody Map<String, Object> requestPayload) {
-        validateContext(requestPayload);
+    public ResponseEntity<String> settlementReport(@Valid @RequestBody Object requestPayload) {
         return commonService.sendSettlementToAgency(requestPayload, "report");
     }
 
     @PostMapping("/recon")
     public ResponseEntity<String> settlementRecon(
-            @Valid @RequestBody Map<String, Object> requestPayload,
+            @Valid @RequestBody Object requestPayload,
             @RequestHeader(value = "requesttype", required = false) String requestType) {
-        
-        validateContext(requestPayload);
         if (requestType != null) {
             return commonService.postOnBapBpp(requestPayload);
         } else {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("type", "RECON");
-            payload.put("data", requestPayload);
+            IntegrationPayload payload = new IntegrationPayload("RECON", requestPayload);
+
+            // Map<String, Object> payload = new HashMap<>();
+            // payload.put("type", "RECON");
+            // payload.put("data", requestPayload);
             return aarambhIntegrationService.updateRecord(payload);
         }
     }
 
     @PostMapping("/on_recon")
     public ResponseEntity<String> settlementOnRecon(
-            @Valid @RequestBody Map<String, Object> requestPayload,
+            @Valid @RequestBody Object requestPayload,
             @RequestHeader(value = "requesttype", required = false) String requestType) {
-        
-        validateContext(requestPayload);
         if (requestType != null) {
             return commonService.postOnBapBpp(requestPayload);
         } else {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("type", "ON_RECON");
-            payload.put("data", requestPayload);
+            // Map<String, Object> payload = new HashMap<>();
+            // payload.put("type", "ON_RECON");
+            // payload.put("data", requestPayload);
+            IntegrationPayload payload = new IntegrationPayload("ON_RECON", requestPayload);
+
             return aarambhIntegrationService.updateRecord(payload);
         }
     }
 
     @PostMapping("/on_settle")
-    public ResponseEntity<String> settlementOnSettle(@Valid @RequestBody Map<String, Object> requestPayload) {
-        validateContext(requestPayload);
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("type", "ON_SETTLE");
-        payload.put("data", requestPayload);
+    public ResponseEntity<String> settlementOnSettle(@Valid @RequestBody Object requestPayload) {
+        // Map<String, Object> payload = new HashMap<>();
+        // payload.put("type", "ON_SETTLE");
+        // payload.put("data", requestPayload);
+        IntegrationPayload payload = new IntegrationPayload("ON_SETTLE", requestPayload);
+        
         return aarambhIntegrationService.updateRecord(payload);
     }
 
     @PostMapping("/on_report")
-    public ResponseEntity<String> settlementOnReport(@Valid @RequestBody Map<String, Object> requestPayload) {
-        validateContext(requestPayload);
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("type", "ON_REPORT");
-        payload.put("data", requestPayload);
+    public ResponseEntity<String> settlementOnReport(@Valid @RequestBody Object requestPayload) {
+        // Map<String, Object> payload = new HashMap<>();
+        // payload.put("type", "ON_REPORT");
+        // payload.put("data", requestPayload);
+        IntegrationPayload payload = new IntegrationPayload("ON_REPORT", requestPayload);
+        
         return aarambhIntegrationService.updateRecord(payload);
     }
 
-    private void validateContext(Map<String, Object> payload) {
-        if (!payload.containsKey("context")) {
-            throw new IllegalArgumentException("Request payload must contain 'context' field");
+    
+
+        private static class IntegrationPayload {
+        private String type;
+        private Object data;
+
+        public IntegrationPayload(String type, Object data) {
+            this.type = type;
+            this.data = data;
         }
-        Map<String, Object> context = (Map<String, Object>) payload.get("context");
-        if (!context.containsKey("bpp_uri")) {
-            throw new IllegalArgumentException("Context must contain 'bpp_uri' field");
         }
-    }
 } 
