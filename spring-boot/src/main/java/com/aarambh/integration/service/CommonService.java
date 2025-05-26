@@ -1,17 +1,18 @@
 package com.aarambh.integration.service;
 
 import com.aarambh.integration.config.AppConfig;
+import com.aarambh.integration.dto.PayloadDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.purejava.tweetnacl.Signature;
 
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 @Service
 public class CommonService {
@@ -27,7 +28,8 @@ public class CommonService {
     }
 
     public ResponseEntity<String> sendSettlementToAgency(Object payload, String requestType) {
-        String bppUri = (String) payload.get("context")).get("bpp_uri");
+        PayloadDTO payloadDTO = (PayloadDTO) payload;
+        String bppUri = payloadDTO.getContext().getBpp_uri();
         String saEndPoint = bppUri + "/" + requestType;
         return makeRequestOverSa(payload, saEndPoint);
     }
@@ -55,13 +57,11 @@ public class CommonService {
         return requestPost(requestUri, requestPayload, headers);
     }
 
-    private String extractRequestUri(Map<String, Object> payload) {
-        Object context = payload.get("context");
-        String action = (String) context.get("action");
-
-        String requestUri = (String) context.get("bpp_uri");  // if NP is BAP 
+    private String extractRequestUri(Object payload) {
+        PayloadDTO payloadDTO = (PayloadDTO) payload;
+        String action = payloadDTO.getContext().getAction();
+        String requestUri = payloadDTO.getContext().getBpp_uri();
         return requestUri + "/" + action;
-        
     }
 
     private String createSigningString(String digestBase64, Long created, Long expires) {
@@ -77,8 +77,12 @@ public class CommonService {
     private String signResponse(String signingKey, String privateKey) {
         try {
             byte[] privateKeyBytes = Base64.getDecoder().decode(privateKey);
-            Signature signature = new Signature(privateKeyBytes);
-            byte[] signed = signature.sign(signingKey.getBytes());
+            org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters privateKeyParams = new org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters(privateKeyBytes, 0);
+            org.bouncycastle.crypto.signers.Ed25519Signer signer = new org.bouncycastle.crypto.signers.Ed25519Signer();
+            signer.init(true, privateKeyParams);
+            byte[] messageBytes = signingKey.getBytes(StandardCharsets.UTF_8);
+            signer.update(messageBytes, 0, messageBytes.length);
+            byte[] signed = signer.generateSignature();
             return Base64.getEncoder().encodeToString(signed);
         } catch (Exception e) {
             throw new RuntimeException("Error signing response", e);
@@ -122,7 +126,7 @@ public class CommonService {
             );
             
             String signingKey = createSigningString(digestBase64, created, expires);
-            const signature = signResponse(signingKey, appConfig.getPrivateKey());
+            String signature = signResponse(signingKey, appConfig.getPrivateKey());
             return String.format(
                 "Signature keyId=\"%s|%s|ed25519\",algorithm=\"ed25519\",created=\"%d\",expires=\"%d\",headers=\"(created) (expires) digest\",signature=\"%s\"",
                 appConfig.getSubscriberId(),

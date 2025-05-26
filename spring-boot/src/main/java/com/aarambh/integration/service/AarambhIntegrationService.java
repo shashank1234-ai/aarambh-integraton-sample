@@ -35,21 +35,21 @@ public class AarambhIntegrationService {
 
             String requestUri = appConfig.getIntegrationUri() + "/create_record";
             HttpEntity<Object> request  = new HttpEntity<>(payload, headers);
-            log.info("Sending POST request to {} with payload: {}", requestUri, payload);
+            //log.info("Sending POST request to {} with payload: {}", requestUri, payload);
 
             return restTemplate.exchange(requestUri, HttpMethod.POST, request, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             // return ResponseEntity.status(e.getRawStatusCode())
             //         .body(e.getResponseBodyAsString());
-            log.error("HTTP error during request to {}: {} - {}", url, ex.getStatusCode(), ex.getResponseBodyAsString());
-           return ResponseEntity.status(ex.getStatusCode()).body(ex.getResponseBodyAsString());
+            ////log.error("HTTP error during request to {}: {} - {}", url, e.getStatusCode(), e.getResponseBodyAsString());
+           return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
 
         } catch (Exception e) {
             // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             //         .body("Error creating record: " + e.getMessage());
-            log.error("Unexpected error during request to {}: {}", url, ex.getMessage(), ex);
+            ////log.error("Unexpected error during request to {}: {}", url, e.getMessage(), ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error during request: " + ex.getMessage());
+                    .body("Error during request: " + e.getMessage());
         }
     }
 
@@ -62,15 +62,15 @@ public class AarambhIntegrationService {
 
             String requestUri = appConfig.getIntegrationUri() + "/update_record";
             HttpEntity<Object> request  = new HttpEntity<>(payload, headers);
-            log.info("Sending POST request to {} with payload: {}", requestUri, payload);
+            // //log.info("Sending POST request to {} with payload: {}", requestUri, payload);
             return restTemplate.exchange(requestUri, HttpMethod.POST, request, String.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            log.error("HTTP error during request to {}: {} - {}", url, ex.getStatusCode(), ex.getResponseBodyAsString());
-           return ResponseEntity.status(ex.getStatusCode()).body(ex.getResponseBodyAsString());
+            ////log.error("HTTP error during request to {}: {} - {}", url, e.getStatusCode(), e.getResponseBodyAsString());
+           return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         } catch (Exception e) {
-            log.error("Unexpected error during request to {}: {}", url, ex.getMessage(), ex);
+            ////log.error("Unexpected error during request to {}: {}", url, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error during request: " + ex.getMessage());
+                    .body("Error during request: " + e.getMessage());
         }
     }
 } 
