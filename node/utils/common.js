@@ -6,11 +6,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const SA_END_POINT = process.env.SA_END_POINT;
+// const SA_END_POINT = process.env.SA_END_POINT;
 
 async function sendSettlementToAgency(payload, requestType) {
     const saEndpoint = `${payload.context.bpp_uri}/${requestType}`;
-    return makeRequestOverSA(payload, SA_END_POINT);
+    return makeRequestOverSA(payload, saEndpoint);
 }
 
 async function makeRequestOverSA(payload, endpoint) {
