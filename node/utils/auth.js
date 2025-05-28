@@ -8,7 +8,7 @@ dotenv.config();
 const UNIQUE_KEY = process.env.UNIQUE_KEY;
 const SUBSCRIBER_ID = process.env.SUBSCRIBER_ID;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const AARAMBH_PRIVATE_KEY = process.env.AARAMBH_PRIVATE_KEY
+const AARAMBH_PRIVATE_KEY = process.env.AARAMBH_SECRET
 
 async function createAuthHeader(requestBody, created = null, expires = null) {
     const authHeader = await createAuthorizationHeader({
