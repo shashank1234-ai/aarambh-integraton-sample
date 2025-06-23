@@ -13,7 +13,8 @@ curl --location 'localhost:8080/create-header' \
 --data-raw '{"value":{"test":"test"}},
 "subscriber_id" : "abc.com",
 "unique_key_id" : "ukid",
-"private_key":"private_key"}'
+"private_key":"private_key"
+}'
 ```
 
 To Verify Auth Header
